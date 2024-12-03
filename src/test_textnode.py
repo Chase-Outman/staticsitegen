@@ -1,6 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType, text_node_to_html_node
+from utility import split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -63,6 +64,29 @@ class TestTestNodeToHTMLNode(unittest.TestCase):
         tnode = TextNode("this is image text", TextType.IMAGE, "this/location/img")
         lnode = text_node_to_html_node(tnode)
         self.assertEqual(lnode.to_html(), "<img src=\"this/location/img\" alt=\"this is image text\"></img>")
+
+class TestUtility(unittest.TestCase):
+    def test_split_nodes_delimiter(self):
+        node = TextNode("This is text with a `code block` word", TextType.NORMAL)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [
+            TextNode("This is text with a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.NORMAL),
+            ]   
+        )
+    
+    def test_split_nodes_delimiter_no_closing_delimiter(self):
+        node = TextNode("This is text with a `code block word", TextType.NORMAL)
+        
+        self.assertRaises(Exception, lambda : split_nodes_delimiter([node], "`", TextType.CODE))
+
+    def test_split_nodes_delimiter_non_normal_type(self):
+        node = TextNode("This is already a bold text", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [TextNode("This is already a bold text", TextType.BOLD)])
+
+    
 
 if __name__ == "__main__":
     unittest.main()
