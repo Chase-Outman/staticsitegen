@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType, text_node_to_html_node
-from utility import split_nodes_delimiter
+from utility import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -86,7 +86,31 @@ class TestUtility(unittest.TestCase):
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, [TextNode("This is already a bold text", TextType.BOLD)])
 
-    
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        res = extract_markdown_images(text)
+        self.assertEqual(res, [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
 
+    def test_extract_markdown_images_no_match(self):
+        text = "there are not image links here"
+        res = extract_markdown_images(text)
+        self.assertEqual(res, [])
+
+    def test_extract_markdown_images_with_missing_exclamtion(self):
+        text = "This is text with a [rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        res = extract_markdown_images(text)
+        self.assertEqual(res, [])
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        res = extract_markdown_links(text)
+        self.assertEqual(res, [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
+
+    def test_extract_markdown_links_no_match(self):
+        text = "there are no links here"
+        res = extract_markdown_links(text)
+        self.assertEqual(res, [])
+
+    
 if __name__ == "__main__":
     unittest.main()

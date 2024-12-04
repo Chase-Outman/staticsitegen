@@ -1,12 +1,14 @@
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
+from utility import extract_markdown_images, extract_markdown_links
 def main():
-    textnode = TextNode("This is a bold text", TextType.BOLD)
+    text = "This is text with a (https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+    print(extract_markdown_images(text))
+# [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]  
 
-    leafnode = HTMLNode.text_node_to_html_node(textnode)
-
-    print(leafnode.to_html())    
-
+    text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    print(extract_markdown_links(text))
+# [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
 
 
 if __name__ == "__main__":
