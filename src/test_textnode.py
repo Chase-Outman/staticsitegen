@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType, text_node_to_html_node
-from utility import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from utility import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -111,6 +111,52 @@ class TestUtility(unittest.TestCase):
         res = extract_markdown_links(text)
         self.assertEqual(res, [])
 
-    
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with a image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.NORMAL,
+        )
+        image_nodes = split_nodes_image([node])
+        self.assertEqual(image_nodes, [
+            TextNode("This is text with a image ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev")
+        ])
+
+    def test_split_nodes_image_with_multiple_of_same_image(self):
+        node = TextNode(
+            "This is text with a image ![to boot dev](https://www.boot.dev) and ![to boot dev](https://www.boot.dev)",
+            TextType.NORMAL,
+        )
+        image_nodes = split_nodes_image([node])
+        self.assertEqual(image_nodes, [
+            TextNode("This is text with a image ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev")
+        ])
+
+    def test_split_nodes_image_no_images(self):
+        node = TextNode("There is no image here", TextType.NORMAL)
+        self.assertEqual(split_nodes_image([node]), [node])
+
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.NORMAL,
+        )
+        image_nodes = split_nodes_link([node])
+        self.assertEqual(image_nodes, [
+            TextNode("This is text with a link ", TextType.NORMAL),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.NORMAL),
+            TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev")
+        ])
+
+    def test_split_nodes_link_no_links(self):
+        node = TextNode("There is no links here", TextType.NORMAL)
+        self.assertEqual(split_nodes_link([node]), [node])
+
 if __name__ == "__main__":
     unittest.main()
