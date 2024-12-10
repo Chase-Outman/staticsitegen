@@ -1,4 +1,5 @@
 import re
+import os
 from textnode import TextNode, TextType
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -108,4 +109,13 @@ def text_to_textnodes(text):
 
     return nodes
 
-    
+def extract_title(markdown):
+    lines = markdown.split("\n")
+
+    for line in lines:
+        if re.match(r"^#{1} ", line):
+            return line.replace("#", "").strip()
+        
+    raise Exception("No title in markdown file")
+
+

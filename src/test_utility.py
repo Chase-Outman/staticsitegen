@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType, text_node_to_html_node
-from utility import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from utility import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, extract_title
 
 class TestUtility(unittest.TestCase):
     def test_split_nodes_delimiter(self):
@@ -161,4 +161,19 @@ class TestUtility(unittest.TestCase):
             TextNode("link", TextType.LINK, "http://www.somewhere.com"),
             TextNode(" text type", TextType.NORMAL)
         ])        
+
     
+    def test_extract_title(self):
+        md ="""
+# This is the title
+"""
+
+        title = extract_title(md)
+
+        self.assertEqual(title, "This is the title")
+
+    def test_extract_title_with_h2(self):
+        md ="""
+## This is the title
+"""
+        self.assertRaises(Exception, lambda : extract_title(md))
